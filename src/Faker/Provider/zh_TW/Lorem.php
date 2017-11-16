@@ -34,7 +34,7 @@ class Lorem extends Base
     );
 
     /**
-     * @example 'Lorem'
+     * @example '乾為天'
      * @return string
      */
     public static function word()
@@ -45,7 +45,7 @@ class Lorem extends Base
     /**
      * Generate an array of random words
      *
-     * @example array('Lorem', 'ipsum', 'dolor')
+     * @example array('乾為天', '澤天夬', '火天大有')
      *
      * @param  integer $nb     how many words to return
      * @param  bool    $asText if true the sentences are returned as one string
@@ -65,7 +65,7 @@ class Lorem extends Base
     /**
      * Generate a random sentence
      *
-     * @example 'Lorem ipsum dolor sit amet.'
+     * @example '天行健，自強不息，飛龍在天，大人造也，亢龍有悔，盈不可久也。'
      *
      * @param integer $nbWords          around how many words the sentence should contain
      * @param boolean $variableNbWords  set to false if you want exactly $nbWords returned,
@@ -84,13 +84,13 @@ class Lorem extends Base
 
         $words = static::words($nbWords);
 
-        return implode($words, '，');
+        return implode($words, '，') . '。';
     }
 
     /**
      * Generate an array of sentences
      *
-     * @example array('Lorem ipsum dolor sit amet.', 'Consectetur adipisicing eli.')
+     * @example array('天行健，自強不息。', '亢龍有悔，盈不可久也。')
      *
      * @param  integer $nb     how many sentences to return
      * @param  bool    $asText if true the sentences are returned as one string
@@ -110,7 +110,7 @@ class Lorem extends Base
     /**
      * Generate a single paragraph
      *
-     * @example 'Sapiente sunt omnis. Ut pariatur ad autem ducimus et. Voluptas rem voluptas sint modi dolorem amet.'
+     * @example '天行健，自強不息，飛龍在天，大人造也，亢龍有悔，盈不可久也。天地變化，草木蕃，天地閉，賢人隱。'
      *
      * @param integer $nbSentences          around how many sentences the paragraph should contain
      * @param boolean $variableNbSentences  set to false if you want exactly $nbSentences returned,
@@ -156,19 +156,48 @@ class Lorem extends Base
      *
      * @example 'Sapiente sunt omnis. Ut pariatur ad autem ducimus et. Voluptas rem voluptas sint modi dolorem amet.'
      *
-     * @param  integer $maxNbChars Maximum number of characters the text should contain (minimum 5)
+     * @param  integer $maxNbChars Maximum number of characters the text should contain (minimum 1)
      *
      * @return string
      */
     public static function text($maxNbChars = 200)
     {
-        if ($maxNbChars < 5) {
+        if ($maxNbChars < 1) {
             throw new \InvalidArgumentException('text() can only generate text of at least 5 characters');
         }
 
-        $type = ($maxNbChars < 25) ? 'word' : (($maxNbChars < 100) ? 'sentence' : 'paragraph');
+        if ($maxNbChars <= 5) {
+            $type = 'characters';
+        } elseif ($maxNbChars > 5 && $maxNbChars <= 15) {
+            $type = 'word';
+        } elseif ($maxNbChars > 15 && $maxNbChars <= 100) {
+            $type = 'sentence';
+        } else {
+            $type = 'paragraph';
+        }
 
         $text = array();
+
+        if ($type === 'characters') {
+            if ($maxNbChars <= 2) {
+                do {
+                    $word = static::word();
+                } while (mb_strlen($word) < $maxNbChars);
+
+                $characters = preg_split('/(?<!^)(?!$)/u', $word);
+
+                $characters = static::randomElements($characters, $maxNbChars);
+
+                return implode('', $characters);
+            }
+
+            do {
+                $word = static::word();
+            } while (mb_strlen($word) !== $maxNbChars);
+
+            return $word;
+        }
+
         while (empty($text)) {
             $size = 0;
 
